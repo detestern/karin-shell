@@ -99,8 +99,18 @@ Item {
 					anchors.centerIn: parent
 					spacing: 6
 
+					// karin-shell: icon "@core" — фирменный значок KarinCore
+					CoreIcon {
+						visible: modelData.icon === "@core"
+						anchors.verticalCenter: parent.verticalCenter
+						ringColor: hTab.isActive ? Theme.active
+						         : (hHov.hovered ? Qt.rgba(1, 1, 1, 0.75) : Qt.rgba(1, 1, 1, 0.4))
+						nodeColor: hTab.isActive || hHov.hovered ? "#a6e3a1" : Qt.rgba(0.65, 0.89, 0.63, 0.45)
+					}
+
 					Text {
 						id: hIcon
+						visible:        modelData.icon !== "@core"
 						text:           modelData.icon
 						font.pixelSize: 14
 						anchors.verticalCenter: parent.verticalCenter

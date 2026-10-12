@@ -163,7 +163,7 @@ PanelWindow {
                         { key: "home",     icon: "󰋜", label: "Home"   },
                         { key: "stats",    icon: "󰻠", label: "System" },
                         { key: "kanban",   icon: "󰄬", label: "Tasks"  },
-                        { key: "karincore", icon: "󰖂", label: "KarinCore" },
+                        { key: "karincore", icon: "@core", label: "KarinCore" },
                         { key: "launcher", icon: "󱓞", label: "Apps"   },
                         { key: "config",   icon: "󰒓", label: "Config" },
                     ]
