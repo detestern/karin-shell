@@ -22,6 +22,7 @@ Hyprland (Lua config) · Brain Shell on Quickshell · hyprlock · hypridle · a 
   - **Config → Theme** — accent, window borders, rounding, gaps, bar opacity, cursor, icons, dark mode. One click applies it to Hyprland, the shell, GTK and Qt apps.
   - **Config → Desktops** — how many workspaces exist at startup and which apps open on each; pin an app to "always open on this desktop".
   - **Monitor popup** — plug in a screen and pick left / right / above / mirror / off, scale and mode on a live diagram. Tick *Remember* and it is never asked again.
+  - **KarinCore tab** — the living core from [KarinCore](https://github.com/detestern/KarinCore) right in the dashboard: one tap to connect, switch profiles from a dropdown, see your IP. Not installed yet? The tab shows how to get it.
   - Keyboard layout indicator in the bar.
 - **Smart windows** — terminals float centered at a sane size, utilities and dialogs float, wide TUIs (`btop`, `sigye`, `cava`…) automatically tile, video in fullscreen never lets the screen sleep.
 - **Lock & idle** — hyprlock with Karin, dim → lock → screen off → suspend, lid close locks.

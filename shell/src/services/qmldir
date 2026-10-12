@@ -24,3 +24,4 @@ ShellConfig ./config_tab/ShellConfig.qml
 KeybindsPage ./config_tab/KeybindsPage.qml
 DesktopsPage ./config_tab/DesktopsPage.qml
 ThemePage ./config_tab/ThemePage.qml
+KarinCorePage KarinCorePage.qml

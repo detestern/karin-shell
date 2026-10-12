@@ -32,6 +32,7 @@ PanelWindow {
         "home":     900,
         "stats":    900,
         "kanban":   900,
+        "karincore": 560,
         "launcher": 560,
         "config":   900
     })
@@ -162,6 +163,7 @@ PanelWindow {
                         { key: "home",     icon: "󰋜", label: "Home"   },
                         { key: "stats",    icon: "󰻠", label: "System" },
                         { key: "kanban",   icon: "󰄬", label: "Tasks"  },
+                        { key: "karincore", icon: "󰖂", label: "KarinCore" },
                         { key: "launcher", icon: "󱓞", label: "Apps"   },
                         { key: "config",   icon: "󰒓", label: "Config" },
                     ]
@@ -192,6 +194,12 @@ PanelWindow {
                         anchors.fill: parent
                         visible:      root.page === "kanban"
                         KanbanBoard { anchors.fill: parent }
+                    }
+
+                    Item {
+                        anchors.fill: parent
+                        visible:      root.page === "karincore"
+                        KarinCorePage { anchors.fill: parent }
                     }
 
                     Item {
