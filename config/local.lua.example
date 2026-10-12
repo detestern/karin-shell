@@ -1,0 +1,14 @@
+-- local.lua — личные правки karin-shell. Скопируй этот файл в local.lua и меняй как хочешь:
+-- он загружается последним, его не перезаписывает установщик и он не попадает в git.
+
+-- Масштаб встроенного экрана ноутбука (по умолчанию "auto")
+-- hl.monitor({ output = "eDP-1", mode = "preferred", position = "0x0", scale = "1" })
+
+-- Раскладки клавиатуры и переключение
+-- hl.config({ input = { kb_layout = "us,ru", kb_options = "grp:alt_shift_toggle" } })
+
+-- Свои хоткеи
+-- hl.bind("SUPER + E", hl.dsp.exec_cmd("nemo"))
+
+-- Свои правила окон
+-- hl.window_rule({ name = "my-float", match = { class = "^(pavucontrol)$" }, float = true })

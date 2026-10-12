@@ -1,0 +1,16 @@
+/* Простая тема rofi в цветах Карин — для запасных меню karin-shell */
+* {
+    bg:     #11111bE6;
+    fg:     #f5e0dc;
+    accent: #f38ba8;
+    background-color: transparent;
+    text-color: @fg;
+    font: "JetBrainsMono Nerd Font 13";
+}
+window   { width: 420px; background-color: @bg; border: 3px; border-color: @accent; border-radius: 16px; padding: 18px; }
+inputbar { children: [ prompt ]; margin: 0 0 12px 0; }
+prompt   { text-color: @accent; }
+listview { lines: 5; spacing: 6px; fixed-height: false; }
+element  { padding: 10px 14px; border-radius: 10px; }
+element selected { background-color: #f38ba833; text-color: @accent; }
+element-text { vertical-align: 0.5; }

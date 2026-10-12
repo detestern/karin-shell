@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+# karin-shell — Hyprland + Brain Shell, запуск из TTY.
+#
+#   karin-shell                  заставка + Hyprland с ~/.config/karin-shell/hyprland.lua
+#   karin-shell demo [эффект] [стиль] [картинка]
+#                                показать заставку в текущем терминале
+#        эффект:   decrypt | matrix | scan | random
+#        стиль:    face | ascii | hires   (hires в голом TTY сам станет face)
+#        картинка: laptop | knees | photos | standing | face
+#   karin-shell effect <имя>     эффект заставки по умолчанию
+#   karin-shell style <имя>      стиль картинки по умолчанию
+#   karin-shell art <имя>        картинка по умолчанию
+#   karin-shell welcome          приветствие Карин (fastfetch) — для окна на 1-м столе
+#   karin-shell update           обновить из git (если ставили через git clone)
+#   karin-shell check            проверить, что всё на месте
+#   karin-shell version
+
+KS="${KARIN_SHELL_DIR:-$HOME/.config/karin-shell}"
+DATA="${XDG_DATA_HOME:-$HOME/.local/share}/karin-shell"
+INTRO="$KS/intro/intro.py"
+EFFECT_FILE="$KS/intro/effect"
+STYLE_FILE="$KS/intro/style"
+ART_FILE="$KS/intro/art"
+LOG_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/karin-shell"
+PINK=$'\e[38;2;243;139;168m'; DIM=$'\e[2m'; RST=$'\e[0m'
+
+effect() { cat "$EFFECT_FILE" 2>/dev/null || echo decrypt; }
+style()  { cat "$STYLE_FILE"  2>/dev/null || echo hires; }
+art()    { echo "$KS/intro/arts/${1:-$(cat "$ART_FILE" 2>/dev/null || echo laptop)}.json"; }
+usage()  { sed -n '2,17p' "$0" | sed 's/^# \{0,1\}//'; }
+
+case "$1" in
+    demo)
+        python3 "$INTRO" --effect "${2:-$(effect)}" --style "${3:-$(style)}" --art "$(art "$4")" --keep
+        exit ;;
+    effect)
+        [[ "$2" =~ ^(decrypt|matrix|scan|random)$ ]] || { echo "эффекты: decrypt matrix scan random"; exit 1; }
+        echo "$2" > "$EFFECT_FILE" && echo "эффект по умолчанию: $2"
+        exit ;;
+    style)
+        [[ "$2" =~ ^(face|ascii|hires)$ ]] || { echo "стили: face ascii hires"; exit 1; }
+        echo "$2" > "$STYLE_FILE" && echo "стиль по умолчанию: $2"
+        exit ;;
+    art)
+        [[ -n "$2" && -f "$KS/intro/arts/$2.json" ]] || {
+            echo "картинки: $(ls "$KS/intro/arts" | sed 's/\.json//' | tr '\n' ' ')"; exit 1; }
+        echo "$2" > "$ART_FILE" && echo "картинка по умолчанию: $2"
+        exit ;;
+    welcome)
+        clear
+        if [[ -f "$KS/assets/karin_phrases.txt" ]]; then
+            echo -e "\n  ${PINK}󰭹 Karin:${RST} \e[3m$(shuf -n 1 "$KS/assets/karin_phrases.txt")${RST}"
+        fi
+        if command -v fastfetch >/dev/null; then
+            logo=$(find "$KS/assets/fastfetch" -maxdepth 1 -name '*.png' | shuf -n 1)
+            fastfetch -c "$KS/assets/fastfetch/config.jsonc" ${logo:+--logo "$logo" --logo-type kitty}
+        fi
+        exec "${SHELL:-bash}" ;;
+    update)
+        repo=$(cat "$DATA/repo" 2>/dev/null)
+        [[ -d "$repo/.git" ]] || { echo "Не знаю, откуда ставили karin-shell (нет $DATA/repo). Обнови вручную: git pull && ./install.sh"; exit 1; }
+        git -C "$repo" pull --ff-only && "$repo/install.sh" --update
+        exit ;;
+    version)
+        cat "$DATA/version" 2>/dev/null || echo "dev"
+        exit ;;
+    check)
+        ok=1
+        for f in "$KS/hyprland.lua" "$INTRO" "$(art)" "$DATA/shell/shell.qml"; do
+            [[ -e "$f" ]] && echo "  ok  $f" || { echo "  НЕТ $f"; ok=0; }
+        done
+        for c in start-hyprland quickshell awww-daemon hypridle hyprlock python3 jq rofi cliphist; do
+            command -v "$c" >/dev/null && echo "  ok  $c" || { echo "  НЕТ $c"; ok=0; }
+        done
+        ((ok)) && echo "Всё на месте." || echo "Чего-то не хватает (см. выше) — запусти ./install.sh ещё раз."
+        exit ;;
+    ""|start) ;;
+    -h|--help|help) usage; exit 0 ;;
+    *) usage; exit 1 ;;
+esac
+
+if [[ -n "$WAYLAND_DISPLAY" || -n "$HYPRLAND_INSTANCE_SIGNATURE" ]]; then
+    echo "Сессия уже запущена. Посмотреть заставку: karin-shell demo"
+    exit 1
+fi
+
+mkdir -p "$LOG_DIR"
+python3 "$INTRO" --effect "$(effect)" --style "$(style)" --art "$(art)" 2>>"$LOG_DIR/intro.log"
+clear
+
+# Логи Hyprland — в файл, а не на экран TTY
+exec start-hyprland -- -c "$KS/hyprland.lua" >"$LOG_DIR/hyprland.log" 2>&1

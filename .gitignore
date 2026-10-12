@@ -1,0 +1,15 @@
+# Состояние, которое меняется через интерфейс (Config → Theme / Desktops, попап мониторов)
+/config/theme.json
+/config/theme.lua
+/config/desktops.json
+/config/desktops.lua
+/config/monitors.json
+/config/monitors.saved.lua
+/config/local.lua
+/config/intro/art
+/config/intro/effect
+/config/intro/style
+# генерирует matugen
+/shell/src/config/colors.conf
+__pycache__/
+*.pyc
