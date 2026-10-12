@@ -103,7 +103,7 @@ Item {
         }
     }
 
-    onVisibleChanged: if (visible) { whichProc.running = false; whichProc.running = true; statusFile.reload() }
+    function _onShown() { whichProc.running = false; whichProc.running = true; statusFile.reload() }
 
     // ── Действия ─────────────────────────────────────────────────────────────
     Process { id: actProc }
@@ -353,54 +353,72 @@ Item {
         }
     }
 
-    // выпадающий список профилей (поверх)
-    Rectangle {
-        visible: root.listOpen && root.installed
-        z: 10
-        width: 300
-        height: Math.min(listCol.implicitHeight + 12, 220)
-        x: (root.width - width) / 2
-        y: root.listY
-        radius: 10
-        color: root.kcPanel
-        border.color: Qt.rgba(0.86, 0.54, 0.87, 0.45)
-        Flickable {
-            anchors { fill: parent; margins: 6 }
-            contentHeight: listCol.implicitHeight
-            clip: true
-            boundsBehavior: Flickable.StopAtBounds
-            Column {
-                id: listCol
-                width: parent.width
-                spacing: 2
-                Repeater {
-                    model: root.profiles
-                    delegate: Rectangle {
-                        id: row
-                        required property var modelData
-                        width: listCol.width; height: 32; radius: 7
-                        readonly property bool cur: row.modelData.id === root.selected
-                        color: rowH.hovered ? Qt.rgba(0.86, 0.54, 0.87, 0.16) : cur ? Qt.rgba(1, 1, 1, 0.05) : "transparent"
-                        Text {
-                            anchors { left: parent.left; leftMargin: 10; right: typeTag.left; rightMargin: 6; verticalCenter: parent.verticalCenter }
-                            text: (row.cur ? "● " : "") + row.modelData.name
-                            elide: Text.ElideRight
-                            color: row.cur ? root.kcAccent : root.kcText
-                            font.pixelSize: 12; font.family: "JetBrains Mono"
+    // выпадающий список профилей — отдельное всплывающее окно,
+    // чтобы список выходил за границы дашборда
+    PopupWindow {
+        id: profilePopup
+        anchor.item: picker
+        anchor.rect.x: 0
+        anchor.rect.y: picker.height + 4
+        anchor.rect.width: picker.width
+        anchor.rect.height: 1
+        anchor.edges: Edges.Top | Edges.Left
+        anchor.gravity: Edges.Bottom | Edges.Right
+        implicitWidth: 300
+        implicitHeight: Math.min(listCol.implicitHeight + 12, 340)
+        visible: root.listOpen && root.installed && root.visible && Popups.dashboardOpen
+        color: "transparent"
+
+        Rectangle {
+            anchors.fill: parent
+            radius: 10
+            color: root.kcPanel
+            border.color: Qt.rgba(0.86, 0.54, 0.87, 0.45)
+
+            Flickable {
+                anchors { fill: parent; margins: 6 }
+                contentHeight: listCol.implicitHeight
+                clip: true
+                boundsBehavior: Flickable.StopAtBounds
+                Column {
+                    id: listCol
+                    width: parent.width
+                    spacing: 2
+                    Repeater {
+                        model: root.profiles
+                        delegate: Rectangle {
+                            id: row
+                            required property var modelData
+                            width: listCol.width; height: 32; radius: 7
+                            readonly property bool cur: row.modelData.id === root.selected
+                            color: rowH.hovered ? Qt.rgba(0.86, 0.54, 0.87, 0.16) : cur ? Qt.rgba(1, 1, 1, 0.05) : "transparent"
+                            Text {
+                                anchors { left: parent.left; leftMargin: 10; right: typeTag.left; rightMargin: 6; verticalCenter: parent.verticalCenter }
+                                text: (row.cur ? "● " : "") + row.modelData.name
+                                elide: Text.ElideRight
+                                color: row.cur ? root.kcAccent : root.kcText
+                                font.pixelSize: 12; font.family: "JetBrains Mono"
+                            }
+                            Text {
+                                id: typeTag
+                                anchors { right: parent.right; rightMargin: 10; verticalCenter: parent.verticalCenter }
+                                text: (row.modelData.type || "").toUpperCase()
+                                color: root.kcDim; font.pixelSize: 9; font.family: "JetBrains Mono"
+                            }
+                            HoverHandler { id: rowH; cursorShape: Qt.PointingHandCursor }
+                            TapHandler { onTapped: root.choose(row.modelData) }
                         }
-                        Text {
-                            id: typeTag
-                            anchors { right: parent.right; rightMargin: 10; verticalCenter: parent.verticalCenter }
-                            text: (row.modelData.type || "").toUpperCase()
-                            color: root.kcDim; font.pixelSize: 9; font.family: "JetBrains Mono"
-                        }
-                        HoverHandler { id: rowH; cursorShape: Qt.PointingHandCursor }
-                        TapHandler { onTapped: root.choose(row.modelData) }
                     }
                 }
             }
         }
     }
+
+    Connections {
+        target: Popups
+        function onDashboardOpenChanged() { if (!Popups.dashboardOpen) root.listOpen = false }
+    }
+    onVisibleChanged: if (visible) root._onShown(); else root.listOpen = false
 
     // ═════════════════════════════════════════════════════════════════════════
     //  Не установлен — карточка-приглашение
